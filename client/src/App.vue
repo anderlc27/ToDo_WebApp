@@ -1,17 +1,16 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <tasks Task_Name="Complete Frontend" Due_Date="12/16/2019"/>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import tasks from './components/task.vue'
 
 export default {
   name: 'app',
   components: {
-    HelloWorld
+    tasks
   }
 }
 </script>
