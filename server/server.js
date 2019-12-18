@@ -2,22 +2,28 @@ const express = require('express')
 const { Client } = require('pg')
 const app = express()
 const newConnection = require('./dbConnect.js')
+const cors = require('cors')
 
-var client = new Client(newConnection.newCon())
+var client = new Client(newConnection.newCon());
+client.connect()
+
+app.use(cors({
+	origin: '*'
+}))
+
 
 app.listen(3000, () => {
     console.log("Listening on Port 3000")
 })
 
 async function getTasks() {
-    client.connect();
     let tasks = await client.query('SELECT * FROM "ToDo"')
-    client.end();
     return tasks.rows;
 }
 
-app.get('/api', async (req, res) => {
+app.get('/api/tasks', async (req, res) => {
     let myTasks = await getTasks();
+    console.log('request is received')
     res.send(myTasks)
 })
 

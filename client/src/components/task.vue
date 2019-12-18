@@ -1,33 +1,42 @@
 <template>
-    <div class="task_card">
-        <div style="padding-top: 10px; margin-left:380px;">
-            <input type="button" value="Edit">
-            <input type="button" value="Delete">
+    <div class="container">
+        <div class="task_card"
+             v-for="task in tasks"
+             v-bind:item="task"
+             v-bind:key="task.TaskName">
+            <div style="padding-top: 10px; margin-left:380px;">
+                <input type="button" value="Edit">
+                <input type="button" value="Delete">
+            </div>
+            <div style="border-bottom: solid lightgrey 1px; width: 490px; margin: 0px auto;">
+                <h1>{{task.TaskName}}</h1>
+                <h2>Due: {{task.DueDate}}</h2>
+            </div>
         </div>
-        <div style="border-bottom: solid lightgrey 1px; width: 490px; margin: 0px auto;">
-            <h1>{{Task_Name}}</h1>
-            <h2>Due: {{Due_Date}}</h2>
-        </div>
-        <h3>Implementation</h3>
-        <p style="margin-right: 230px;">Easy</p>
-        <p>Hard</p>
-        <br/>
-        <input type="range" name="Implementation" class="slider" min="1" max="5" value="3">
-        <br/>
-        <h3>Impact</h3>
-        <p style="margin-right: 235px;">Low</p>
-        <p>High</p>
-        <br/>
-        <input type="range" name="Impact" class="slider" min="1" max="5" value="3">
+        <!-- {{ stuff }} -->
     </div>
 </template>
 
 <script>
+import axios from 'axios'
+//import TaskService from '../TaskService.js';
 export default {
     name: 'tasks',
-    props: {
-        Task_Name: String,
-        Due_Date: String
+    data() {
+        return {
+            tasks: null,
+            error_msg: ''
+        }
+    },
+    created() {
+        this.fetch();
+    },
+    methods: {
+        fetch() {
+            axios.get('http://localhost:3000/api/tasks')
+            .then((response) => this.tasks = response.data)
+            .catch((error) => this.error_msg = error.message)
+        }
     }
 }
 </script>
@@ -43,8 +52,9 @@ export default {
     .task_card {
         border: 1px solid black;
         width: 500px;
-        height: 260px;
-        margin: 0 auto;
+        /* height: 260px; */
+        height: 150px;
+        margin: 20px auto;
         border-radius: 10px;
     }
 
