@@ -5,7 +5,7 @@ const app = express()
 const newConnection = require('./dbConnect.js')
 const cors = require('cors')
 
-var numTasks = 0;
+var nextTaskID = 0;
 
 var client = new Client(newConnection.newCon());
 client.connect()
@@ -20,31 +20,26 @@ app.listen(3000, () => {
 })
 
 async function getTasks() {
-    let tasks = await client.query('SELECT * FROM "ToDo"')
+    let tasks = await client.query('SELECT * FROM "ToDo" ORDER BY "DueDate" ASC, "Implementation" ASC, "Impact" DESC')
     return tasks.rows;
 }
 
 app.get('/api/tasks', async (req, res) => {
     let myTasks = await getTasks();
-    numTasks = myTasks.length;
-    console.log('request is received')
-    console.log("Number of Tasks from GET: " + numTasks)
+    if (myTasks.length)
+        nextTaskID = myTasks[myTasks.length - 1].ID
     res.send(myTasks)
 })
 
 app.delete('/api/delete/:id', async (req, res) => {
-    console.log("request received")
-   await client.query('DELETE FROM "ToDo" WHERE "ID"= $1', [req.params.id])
-   numTasks--;
-   console.log("After Delete " + numTasks)
+    await client.query('DELETE FROM "ToDo" WHERE "ID"= $1', [req.params.id])
+    nextTaskID--
+    res.send(await getTasks())
 })
 
 app.post('/api/add', async (req, res) => {
-    console.log("Received");
     let impl = parseInt(req.body.Implementation, 10);
     let impa = parseInt(req.body.Impact, 10);
-    console.log("Before Post: " + numTasks);
-    await client.query(`INSERT INTO "ToDo" ("TaskName", "DueDate", "Implementation", "Impact", "ID") VALUES ('${req.body.Task_Name}','${req.body.Due_Date}', ${impl}, ${impa}, ${numTasks++})`)
-    console.log("After Post: " + numTasks)
+    await client.query(`INSERT INTO "ToDo" ("TaskName", "Implementation", "Impact", "ID", "DueDate") VALUES ('${req.body.Task_Name}', ${impl}, ${impa}, ${++nextTaskID},'${req.body.Due_Date}')`)
     res.redirect('http://localhost:8080')
 })

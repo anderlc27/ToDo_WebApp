@@ -10,7 +10,7 @@
                 <h3>{{task.DueDate}}</h3>
             </div>
             <div style="grid-column: 2;">
-                <button style="margin-top:10px; margin-left: 280px; border: lightgrey solid 1px; border-radius: 25px;; background-color: red; color: white; font-size: 10px;" v-on:click="removeTask(task.ID)">X</button>        
+                <button style="margin-top:10px; margin-left: 280px; border: lightgrey solid 1px; border-radius: 25px;; background-color: red; color: white; font-size: 10px;" v-on:dblclick="removeTask(task.ID)">X</button>        
                 <h3>Implementation</h3>
                 <p style="margin-right: 230px;">Easy</p>
                 <p>Hard</p>
@@ -40,23 +40,29 @@ export default {
         }
     },
     created() {
-        this.fetch();
+        this.tasks = this.fetch();
     },
     methods: {
         /* eslint-disable no-alert, no-console */
-        fetch() {
-            axios.get('http://localhost:3000/api/tasks')
-            .then((response) => this.tasks = response.data)
+        async fetch() {
+            await axios.get('http://localhost:3000/api/tasks')
+            .then((response) => {
+                this.tasks = response.data
+                console.log(response.data)
+            })
             .catch((error) => this.error_msg = error.message)
+
+            this.tasks.forEach(element => {
+                let months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                element.DueDate = `${months[parseInt(element.DueDate.substring(5,7))-1]} ${element.DueDate.substring(8,10)}, ${element.DueDate.substring(0,4)}`
+            })
         },
-        removeTask(taskID) {
-           axios.delete(`http://localhost:3000/api/delete/${taskID}`)
+        async removeTask(taskID) {
+           await axios.delete(`http://localhost:3000/api/delete/${taskID}`)
            .catch((error) => this.error_msg = error.message)
 
-           this.fetch()
-            // console.log("Request Received to remove");
-            // console.log(taskID)
-        }
+           await this.fetch()
+        },
     }
 }
 </script>
